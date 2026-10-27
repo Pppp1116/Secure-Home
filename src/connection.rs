@@ -53,16 +53,15 @@ pub struct Connection {
 }
 
 #[repr(u8)]
-pub enum Order {
-    State = 1,
-    Off = 0,
+pub enum SendingOrder {
+    HumanPresence = 1,
 }
-impl TryFrom<u8> for Order {
+impl TryFrom<u8> for SendingOrder {
     type Error = Esp32Error;
     fn try_from(value: u8) -> std::result::Result<Self, Self::Error> {
         match value {
-            1 => Ok(Order::State),
-            0 => Ok(Order::Off),
+            1 => Ok(SendingOrder::HumanPresence),
+            0 => Ok(SendingOrder::Off),
             _ => Err(Error::new(io::ErrorKind::BrokenPipe, "misisng match arm"))?,
         }
     }
@@ -89,11 +88,11 @@ impl Connection {
         Ok(Self { wifi: tls })
     }
 
-    pub fn read(&mut self) -> Result<Order> {
+    pub fn read(&mut self) -> Result<SendingOrder> {
         let mut bytes = [0u8];
 
         self.wifi.read_exact(&mut bytes)?;
 
-        Ok(Order::try_from(bytes[0])?)
+        Ok(SendingOrder::try_from(bytes[0])?)
     }
 }

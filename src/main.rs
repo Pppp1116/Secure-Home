@@ -1,4 +1,4 @@
-use crate::connection::Connection;
+use crate::connection::{Connection, SendingOrder};
 use crate::Connection::Result;
 use esp_idf_svc::hal::gpio::PinDriver;
 use esp_idf_svc::hal::peripherals::Peripherals;
@@ -7,6 +7,7 @@ use std::net::TcpStream;
 use std::thread;
 use std::time::Duration;
 
+mod actions;
 mod connection;
 
 fn main() -> Result<()> {
@@ -33,6 +34,13 @@ fn main() -> Result<()> {
 
     loop {
         let order = connection.read()?;
-        //TODO react to the orders
+
+        if motion.is_high() && !previous {
+            detections += 1;
+            previous = true;
+        }
+        if !motion.is_high() {
+            previous = false;
+        }
     }
 }
